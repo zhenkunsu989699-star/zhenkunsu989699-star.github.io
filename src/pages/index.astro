@@ -1,0 +1,317 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import { site, themes } from '../data/site';
+import { getPapers, getNotes } from '../lib/papers';
+import museum from '../assets/photos/portrait-museum.jpg';
+import bamboo from '../assets/photos/portrait-bamboo-hero.jpg';
+import judicial from '../assets/stock/judicial.jpg';
+import port from '../assets/stock/port.jpg';
+import data from '../assets/stock/data.jpg';
+
+const themeImg = { judicial, port, data } as const;
+const papers = await getPapers();
+const published = papers.filter((p) => p.data.status === 'published');
+const notes = (await getNotes()).slice(0, 3);
+---
+<Base>
+  <!-- ========== 首屏 ========== -->
+  <section class="hero">
+    <div class="hero-bg" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+    <div class="container hero-grid">
+      <div class="hero-text">
+        <p class="eyebrow" data-reveal>法经济学 · 公司金融 · 制度经济学</p>
+        <h1 class="display" data-reveal style="--d:80ms">
+          <span class="gradient-text">{site.name}</span>
+        </h1>
+        <p class="hero-en" lang="en" data-reveal style="--d:140ms">{site.nameEn}</p>
+        <p class="lead" data-reveal style="--d:200ms">{site.tagline}<br /><span class="lead-en" lang="en">{site.taglineEn}</span></p>
+        <p class="hero-role" data-reveal style="--d:260ms">{site.title}</p>
+        <div class="hero-cta" data-reveal style="--d:320ms">
+          <a class="btn btn-primary" href="/research/">浏览研究</a>
+          <a class="link-arrow" href="/about/">了解我</a>
+        </div>
+      </div>
+      <div class="hero-visual" data-reveal="scale" style="--d:150ms">
+        <div class="portrait">
+          <Image src={bamboo} alt="苏振坤的生活照" widths={[480, 720, 1000]} sizes="(max-width: 860px) 80vw, 420px" loading="eager" fetchpriority="high" />
+        </div>
+        <div class="float-card f1">
+          <span class="fc-dot"></span>
+          <div><strong lang="en">Economics &amp; Politics</strong><span>2026 年 · 第一作者</span></div>
+        </div>
+        <div class="float-card f2">
+          <span class="fc-num">{published.length}</span>
+          <div><strong>篇期刊论文</strong><span lang="en">Published papers</span></div>
+        </div>
+      </div>
+    </div>
+    <a class="scroll-hint" href="#themes" aria-label="向下滚动"><span></span></a>
+  </section>
+
+  <!-- ========== 研究主题 ========== -->
+  <section class="section" id="themes">
+    <div class="container">
+      <header class="section-head">
+        <p class="eyebrow" data-reveal>研究主题<span lang="en">Research</span></p>
+        <h2 class="headline" data-reveal style="--d:80ms">制度变迁，<br />如何改变企业与城市。</h2>
+        <p class="lead" data-reveal style="--d:160ms">以准自然实验与多期双重差分为工具，评估司法、开放与数据三类改革的经济效应。</p>
+      </header>
+
+      <div class="bento">
+        {themes.map((t, i) => (
+          <a class:list={['tile', `tile-${i}`]} href={`/research/${t.paper}/`} data-reveal style={`--d:${i * 90}ms`}>
+            <Image class="tile-img" src={themeImg[t.key]} alt="" widths={i === 0 ? [800, 1400, 2000] : [600, 900, 1200]} sizes={i === 0 ? '(max-width: 1120px) 100vw, 1060px' : '(max-width: 760px) 100vw, 530px'} />
+            <div class="tile-shade"></div>
+            <div class="tile-body">
+              <p class="tile-eyebrow">{t.eyebrow}</p>
+              <h3 class="tile-title">{t.title.split('\n').map((l, j) => <>{j > 0 && <br />}{l}</>)}</h3>
+              <p class="tile-desc">{t.desc}</p>
+              <span class="tile-link">阅读论文 ›</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 代表作 ========== -->
+  <section class="feature">
+    <div class="container feature-grid">
+      <div>
+        <p class="eyebrow on-dark" data-reveal>代表作<span lang="en">Economics &amp; Politics, 2026</span></p>
+        <h2 class="headline" data-reveal style="--d:80ms">法官员额制改革<br />让企业更透明。</h2>
+        <p class="feature-lead" data-reveal style="--d:160ms">
+          基于 2011—2022 年沪深 A 股上市公司数据，利用员额制改革的准自然实验，发现司法质量与独立性的提升显著改善了企业信息透明度。
+        </p>
+        <div class="feature-cta" data-reveal style="--d:240ms">
+          <a class="btn btn-primary" href="/research/quota-of-judges-transparency/">阅读摘要</a>
+          <a class="link-arrow light" href="https://doi.org/10.1111/ecpo.70030" target="_blank" rel="noopener">DOI 原文</a>
+        </div>
+      </div>
+      <div class="metric" data-reveal="scale" style="--d:120ms">
+        <p class="metric-label">企业信息透明度提升约</p>
+        <p class="metric-num"><span data-count="2.05" data-decimals="2">2.05</span><small>个百分点</small></p>
+        <ul class="mechs">
+          <li><span>01</span>司法知识数量</li>
+          <li><span>02</span>司法知识质量</li>
+          <li><span>03</span>司法知识权威</li>
+        </ul>
+        <p class="metric-foot">三条作用机制 · 非国有、高融资约束企业效应更强</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 论文列表 ========== -->
+  <section class="section alt">
+    <div class="container narrow">
+      <header class="section-head">
+        <p class="eyebrow" data-reveal>发表论文<span lang="en">Publications</span></p>
+        <h2 class="headline" data-reveal style="--d:80ms">近期成果</h2>
+      </header>
+      <ul class="pub-list">
+        {published.map((p, i) => (
+          <li data-reveal style={`--d:${i * 70}ms`}>
+            <a class="pub card lift" href={`/research/${p.id}/`}>
+              <div class="pub-meta"><span class="pub-year">{p.data.year}</span><span class="pub-venue" lang={p.data.lang}>{p.data.venue}</span></div>
+              <h3 class="pub-title" lang={p.data.lang}>{p.data.title}</h3>
+              <p class="pub-authors" lang={p.data.lang}>{p.data.authors.join(p.data.lang === 'zh' ? '、' : ', ')}</p>
+              <span class="pub-arrow" aria-hidden="true">›</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p class="center" data-reveal><a class="link-arrow" href="/research/">查看全部研究</a></p>
+    </div>
+  </section>
+
+  <!-- ========== 关于 ========== -->
+  <section class="section">
+    <div class="container about-grid">
+      <div class="about-photo" data-zoom>
+        <Image src={museum} alt="苏振坤在美术馆的生活照" widths={[480, 800, 1200]} sizes="(max-width: 860px) 100vw, 520px" />
+      </div>
+      <div class="about-text">
+        <p class="eyebrow" data-reveal>关于我<span lang="en">About</span></p>
+        <h2 class="headline" data-reveal style="--d:80ms">在法律与经济的<br />交汇处提问。</h2>
+        <p class="lead" data-reveal style="--d:160ms">
+          对外经济贸易大学国际经济贸易学院博士研究生，硕士毕业于山东师范大学经济学院。关注司法改革、对外开放与数据要素市场等制度变迁如何影响企业行为。
+        </p>
+        <ul class="interest-chips" data-reveal style="--d:220ms">
+          {site.interests.map((t) => <li class="chip">{t}</li>)}
+        </ul>
+        <p data-reveal style="--d:280ms"><a class="link-arrow" href="/about/">完整简介与教育经历</a></p>
+      </div>
+    </div>
+  </section>
+
+  {notes.length > 0 && (
+    <section class="section alt">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow" data-reveal>随笔<span lang="en">Notes</span></p>
+          <h2 class="headline" data-reveal style="--d:80ms">读书与思考</h2>
+        </header>
+        <div class="note-grid">
+          {notes.map((n, i) => (
+            <a class="note card lift" href={`/notes/${n.id}/`} data-reveal style={`--d:${i * 80}ms`}>
+              <time>{n.data.date.toISOString().slice(0, 10)}</time>
+              <h3>{n.data.title}</h3>
+              {n.data.summary && <p>{n.data.summary}</p>}
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ========== 联系 ========== -->
+  <section class="cta-band">
+    <div class="container center">
+      <h2 class="headline" data-reveal>期待与你交流。</h2>
+      <p class="lead" data-reveal style="--d:80ms">欢迎就研究合作、数据与方法问题来信。</p>
+      <p class="cta-actions" data-reveal style="--d:160ms">
+        <a class="btn btn-primary" href={`mailto:${site.email}`}>发送邮件</a>
+        <a class="btn btn-secondary" href="/about/">联系方式</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .center { text-align: center; }
+
+  /* ---------- 首屏 ---------- */
+  .hero { position: relative; min-height: 100svh; display: flex; align-items: center; padding: calc(var(--nav-h) + 48px) 0 96px; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .55; animation: drift 18s var(--ease) infinite alternate; }
+  .b1 { width: 520px; height: 520px; background: #ffc4bf; top: -120px; right: -80px; }
+  .b2 { width: 420px; height: 420px; background: #ffe1cf; bottom: -140px; left: -120px; animation-delay: -6s; }
+  .b3 { width: 300px; height: 300px; background: #ffd0d6; top: 40%; left: 45%; opacity: .35; animation-delay: -12s; }
+  :global([data-theme="dark"]) .blob { opacity: .22; }
+  @media (prefers-color-scheme: dark) { :global(:root:not([data-theme="light"])) .blob { opacity: .22; } }
+  @keyframes drift { to { transform: translate3d(40px, -30px, 0) scale(1.08); } }
+
+  .hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 64px; align-items: center; }
+  .hero-text .display { margin-top: 14px; letter-spacing: .06em; }
+  .hero-en { margin-top: 8px; font-size: clamp(22px, 2.6vw, 30px); font-weight: 600; color: var(--text-3); letter-spacing: -0.02em; }
+  .hero-text .lead { margin-top: 28px; max-width: 34rem; color: var(--text); }
+  .lead-en { display: block; margin-top: 6px; font-size: .78em; color: var(--text-3); font-weight: 400; }
+  .hero-role { margin-top: 18px; font-size: 15px; color: var(--text-2); }
+  .hero-cta { display: flex; align-items: center; gap: 24px; margin-top: 36px; }
+  .hero-cta .link-arrow { font-size: 17px; }
+
+  .hero-visual { position: relative; justify-self: center; width: min(420px, 100%); }
+  .portrait { border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-lg); aspect-ratio: 4 / 5.2; background: var(--bg-alt); }
+  .portrait :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; transition: transform 1.2s var(--ease-out); }
+  .hero-visual:hover .portrait :global(img) { transform: scale(1.03); }
+  .float-card {
+    position: absolute; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 16px;
+    background: var(--glass); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: var(--shadow-lg); border: 1px solid var(--line); font-size: 13px; line-height: 1.35;
+    animation: float 6s var(--ease) infinite alternate;
+  }
+  .float-card strong { display: block; font-size: 14px; font-weight: 600; }
+  .float-card span { color: var(--text-2); }
+  .f1 { left: -48px; bottom: 64px; }
+  .f2 { right: -36px; top: 48px; animation-delay: -3s; }
+  .fc-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); }
+  .fc-num { font-size: 32px; font-weight: 700; letter-spacing: -0.03em; color: var(--accent-text) !important; line-height: 1; }
+  @keyframes float { to { transform: translateY(-10px); } }
+
+  .scroll-hint { position: absolute; left: 50%; bottom: 28px; width: 26px; height: 42px; margin-left: -13px; border: 1.5px solid var(--line-strong); border-radius: 14px; }
+  .scroll-hint span { position: absolute; left: 50%; top: 8px; width: 3px; height: 8px; margin-left: -1.5px; border-radius: 2px; background: var(--text-3); animation: wheel 1.8s var(--ease) infinite; }
+  @keyframes wheel { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(12px); } }
+
+  @media (max-width: 860px) {
+    .hero { min-height: auto; padding-bottom: 72px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 56px; }
+    .hero-visual { width: min(340px, 82%); }
+    .f1 { left: -28px; bottom: 32px; }
+    .f2 { right: -24px; top: 28px; }
+    .scroll-hint { display: none; }
+  }
+
+  /* ---------- 研究主题 bento ---------- */
+  .bento { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .tile {
+    position: relative; display: block; overflow: hidden; border-radius: var(--r-lg); color: #fff;
+    min-height: 520px; isolation: isolate; text-decoration: none !important; background: #111;
+  }
+  .tile-0 { grid-column: 1 / -1; min-height: 600px; }
+  .tile :global(.tile-img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform 1.4s var(--ease-out); }
+  .tile:hover :global(.tile-img) { transform: scale(1.05); }
+  .tile-shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.78) 100%); }
+  .tile-0 .tile-shade { background: linear-gradient(90deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,.25) 55%, rgba(0,0,0,0) 100%); }
+  .tile-body { position: absolute; left: 0; right: 0; bottom: 0; padding: clamp(24px, 4vw, 48px); }
+  .tile-0 .tile-body { top: 0; bottom: auto; right: auto; max-width: 520px; display: flex; flex-direction: column; justify-content: center; height: 100%; }
+  .tile-eyebrow { font-size: 14px; font-weight: 600; letter-spacing: .06em; color: rgba(255,255,255,.78); }
+  .tile-title { margin-top: 10px; font-size: clamp(28px, 3.4vw, 42px); font-weight: 700; letter-spacing: .02em; line-height: 1.25; }
+  .tile-desc { margin-top: 14px; font-size: 16px; line-height: 1.55; color: rgba(255,255,255,.82); max-width: 30rem; }
+  .tile-link { align-self: flex-start; display: inline-block; margin-top: 20px; font-size: 15px; font-weight: 500; color: #fff; padding: 8px 16px; border-radius: 999px; background: rgba(255,255,255,.16); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: background-color .3s; }
+  .tile:hover .tile-link { background: rgba(255,255,255,.28); }
+  @media (max-width: 760px) {
+    .bento { grid-template-columns: 1fr; }
+    .tile, .tile-0 { min-height: 460px; }
+    .tile-shade, .tile-0 .tile-shade { background: linear-gradient(180deg, rgba(0,0,0,.05) 15%, rgba(0,0,0,.55) 50%, rgba(0,0,0,.88) 100%); }
+    .tile-0 .tile-body { top: auto; bottom: 0; height: auto; max-width: none; }
+  }
+
+  /* ---------- 代表作（深色） ---------- */
+  .feature { background: #000; color: #f5f5f7; padding: clamp(96px, 13vw, 160px) 0; overflow: hidden; position: relative; }
+  .feature::before { content: ""; position: absolute; width: 700px; height: 700px; right: -200px; top: -200px; border-radius: 50%; background: radial-gradient(closest-side, rgba(232,32,43,.30), transparent); pointer-events: none; }
+  .feature-grid { position: relative; display: grid; grid-template-columns: 1.1fr .9fr; gap: 64px; align-items: center; }
+  .eyebrow.on-dark { color: #ff5a63; }
+  .feature .headline { margin-top: 12px; }
+  .feature-lead { margin-top: 24px; font-size: 18px; line-height: 1.8; color: #a1a1a6; max-width: 34rem; }
+  .feature-cta { display: flex; align-items: center; gap: 24px; margin-top: 36px; }
+  .feature .btn-primary { background: #e8202b; }
+  .feature .btn-primary:hover { background: #ff3a44; }
+  .link-arrow.light { color: #ff5a63; }
+  .metric { padding: 40px; border-radius: var(--r-lg); background: linear-gradient(160deg, #1c1c1e, #0b0b0c); border: 1px solid rgba(255,255,255,.08); }
+  .metric-label { font-size: 15px; color: #a1a1a6; }
+  .metric-num { margin-top: 8px; font-size: clamp(72px, 10vw, 120px); font-weight: 700; letter-spacing: -0.05em; line-height: 1; font-variant-numeric: tabular-nums;
+    background: linear-gradient(120deg, #ff4d4f, #ff9a5a 75%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .metric-num small { font-size: 18px; margin-left: 10px; letter-spacing: .04em; -webkit-text-fill-color: #a1a1a6; font-weight: 500; }
+  .mechs { list-style: none; margin: 32px 0 0; padding: 0; display: grid; gap: 10px; }
+  .mechs li { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; background: rgba(255,255,255,.05); font-size: 16px; font-weight: 500; }
+  .mechs span { font-size: 12px; font-weight: 600; color: #ff5a63; font-variant-numeric: tabular-nums; }
+  .metric-foot { margin-top: 20px; font-size: 13px; color: #86868b; }
+  @media (max-width: 860px) {
+    .feature-grid { grid-template-columns: 1fr; gap: 48px; }
+    .metric { padding: 28px; }
+  }
+
+  /* ---------- 论文列表 ---------- */
+  .pub-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .pub { position: relative; display: block; padding: 24px 56px 24px 28px; color: var(--text); text-decoration: none !important; }
+  .pub-meta { display: flex; gap: 10px; align-items: center; font-size: 13px; }
+  .pub-year { font-weight: 600; color: var(--accent-text); font-variant-numeric: tabular-nums; }
+  .pub-venue { color: var(--text-2); }
+  .pub-title { margin-top: 8px; font-size: 19px; font-weight: 600; line-height: 1.5; }
+  .pub-authors { margin-top: 6px; font-size: 14px; color: var(--text-3); }
+  .pub-arrow { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); font-size: 28px; color: var(--text-3); transition: transform .3s var(--ease-out), color .3s; }
+  .pub:hover .pub-arrow { transform: translate(4px, -50%); color: var(--accent-text); }
+  .pub-list + .center { margin-top: 40px; }
+
+  /* ---------- 关于 ---------- */
+  .about-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 72px; align-items: center; }
+  .about-photo { overflow: hidden; border-radius: 40px; aspect-ratio: 4 / 5; box-shadow: var(--shadow-lg); transform-origin: center; will-change: transform; }
+  .about-photo :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+  .about-text .headline { margin-top: 12px; }
+  .about-text .lead { margin-top: 24px; }
+  .interest-chips { list-style: none; padding: 0; margin: 28px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  @media (max-width: 860px) { .about-grid { grid-template-columns: 1fr; gap: 48px; } .about-photo { max-width: 460px; } }
+
+  /* ---------- 随笔 ---------- */
+  .note-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .note { display: block; padding: 28px; color: var(--text); text-decoration: none !important; }
+  .note time { font-size: 13px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+  .note h3 { margin-top: 10px; font-size: 20px; line-height: 1.35; }
+  .note p { margin-top: 10px; font-size: 15px; color: var(--text-2); }
+
+  /* ---------- 联系 ---------- */
+  .cta-band { padding: clamp(96px, 12vw, 150px) 0; background: radial-gradient(60% 80% at 50% 100%, color-mix(in srgb, var(--accent) 14%, transparent), transparent); }
+  .cta-band .lead { margin-top: 16px; }
+  .cta-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+</style>

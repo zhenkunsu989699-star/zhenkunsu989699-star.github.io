@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import { render } from 'astro:content';
+import { getNotes } from '../../lib/papers';
+
+export async function getStaticPaths() {
+  const notes = await getNotes();
+  return notes.map((note) => ({ params: { id: note.id }, props: { note } }));
+}
+const { note } = Astro.props;
+const { Content } = await render(note);
+---
+<Base title={note.data.title} description={note.data.summary}>
+  <article class="container narrow note">
+    <a class="back" href="/notes/" data-reveal>‹ 全部随笔</a>
+    <time data-reveal style="--d:60ms">{note.data.date.toISOString().slice(0, 10)}</time>
+    <h1 data-reveal style="--d:120ms">{note.data.title}</h1>
+    {note.data.summary && <p class="lead" data-reveal style="--d:180ms">{note.data.summary}</p>}
+    <div class="prose" data-reveal style="--d:240ms"><Content /></div>
+  </article>
+</Base>
+<style>
+  .note { max-width: 720px; padding-top: calc(var(--nav-h) + clamp(48px, 8vw, 96px)); padding-bottom: clamp(80px, 10vw, 128px); }
+  .back { display: inline-block; font-size: 14px; color: var(--text-2); margin-bottom: 28px; }
+  time { display: block; font-size: 14px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+  h1 { margin-top: 10px; font-size: clamp(32px, 5vw, 48px); font-weight: 700; line-height: 1.15; }
+  .lead { margin-top: 18px; }
+  .prose { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--line); }
+</style>

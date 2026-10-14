@@ -1,0 +1,117 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import { site } from '../../data/site';
+import { getPapers, venueLine } from '../../lib/papers';
+import library from '../../assets/stock/library.jpg';
+
+const order = { published: 0, working: 1, thesis: 2 } as const;
+const papers = (await getPapers()).sort((a, b) => order[a.data.status] - order[b.data.status]);
+const groups = [
+  { key: 'published', zh: '期刊论文', en: 'Journal Articles' },
+  { key: 'working', zh: '工作论文', en: 'Working Papers' },
+  { key: 'thesis', zh: '学位论文', en: 'Thesis' },
+] as const;
+const present = groups.filter((g) => papers.some((p) => p.data.status === g.key));
+const label = Object.fromEntries(groups.map((g) => [g.key, g.zh]));
+---
+<Base title="研究 Research" description="苏振坤的期刊论文、工作论文与学位论文" overlayNav>
+  <section class="page-hero">
+    <div class="ph-img" data-parallax="0.18">
+      <Image src={library} alt="" widths={[800, 1400, 2200]} sizes="100vw" loading="eager" />
+    </div>
+    <div class="ph-shade"></div>
+    <div class="container ph-body">
+      <p class="eyebrow" lang="en" data-reveal>Research</p>
+      <h1 class="display" data-reveal style="--d:80ms">研究</h1>
+      <p class="ph-lead" data-reveal style="--d:160ms">司法、开放与数据——用证据回答制度的问题。</p>
+    </div>
+  </section>
+
+  <section class="section list-section">
+    <div class="container narrow">
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="按类型筛选" data-filter-group=".paper-item">
+          <span class="seg-pill" aria-hidden="true"></span>
+          <button type="button" data-filter="all" aria-pressed="true">全部 <span>{papers.length}</span></button>
+          {present.map((g) => (
+            <button type="button" data-filter={g.key} aria-pressed="false">{g.zh} <span>{papers.filter((p) => p.data.status === g.key).length}</span></button>
+          ))}
+        </div>
+      </div>
+
+      <ul class="papers">
+        {papers.map((paper, i) => {
+          const p = paper.data;
+          return (
+            <li class="paper-item" data-cat={p.status} data-reveal style={`--d:${i * 70}ms`}>
+              <a class="paper card lift" href={`/research/${paper.id}/`}>
+                <div class="meta">
+                  <span class="badge">{label[p.status]}</span>
+                  <span class="year">{p.year}</span>
+                  <span class="lang">{p.lang === 'zh' ? '中文' : '英文'}</span>
+                </div>
+                <h2 lang={p.lang}>{p.title}</h2>
+                {p.titleEn && p.lang === 'zh' && <p class="en-title" lang="en">{p.titleEn}</p>}
+                <p class="authors" lang={p.lang}>
+                  {p.authors.map((a, j) => (
+                    <>{j > 0 && (p.lang === 'zh' ? '、' : ', ')}{site.selfNames.includes(a) ? <strong>{a}</strong> : a}</>
+                  ))}
+                </p>
+                <p class="venue" lang={p.lang}>{venueLine(p)}</p>
+                {p.keywords.length > 0 && (
+                  <ul class="kw" lang={p.lang}>{p.keywords.slice(0, 4).map((k) => <li>{k}</li>)}</ul>
+                )}
+                <span class="go" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero { position: relative; height: min(72svh, 640px); min-height: 440px; overflow: hidden; color: #fff; display: flex; align-items: flex-end; background: #111; }
+  .ph-img { position: absolute; inset: -12% 0; will-change: transform; }
+  .ph-img :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .ph-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.15) 40%, rgba(0,0,0,.72) 100%); }
+  .ph-body { position: relative; padding-bottom: clamp(40px, 7vw, 80px); }
+  .page-hero .eyebrow { color: rgba(255,255,255,.75); }
+  .page-hero .display { margin-top: 8px; letter-spacing: .12em; }
+  .ph-lead { margin-top: 16px; font-size: clamp(18px, 2.2vw, 24px); font-weight: 500; letter-spacing: .04em; color: rgba(255,255,255,.85); }
+
+  .list-section { padding-top: 48px; }
+  .toolbar { display: flex; justify-content: center; margin-bottom: 40px; }
+  .seg { position: relative; display: inline-flex; padding: 4px; border-radius: 999px; background: var(--bg-alt); border: 1px solid var(--line); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .seg button {
+    position: relative; z-index: 1; border: 0; background: none; cursor: pointer; white-space: nowrap;
+    padding: 8px 18px; border-radius: 999px; font: inherit; font-size: 14px; font-weight: 500; color: var(--text-2);
+    transition: color .3s var(--ease);
+  }
+  .seg button span { font-size: 12px; color: var(--text-3); margin-left: 2px; font-variant-numeric: tabular-nums; }
+  .seg button[aria-pressed="true"] { color: var(--text); }
+  .seg-pill { position: absolute; top: 4px; bottom: 4px; left: 0; width: 0; border-radius: 999px; background: var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,.12); transition: transform .45s var(--ease-out), width .45s var(--ease-out); }
+
+  .papers { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+  .paper { position: relative; display: block; padding: 28px 64px 28px 32px; color: var(--text); text-decoration: none !important; }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; color: var(--text-3); }
+  .badge { padding: 3px 10px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text); font-weight: 600; font-size: 12px; }
+  .year { font-weight: 600; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  h2 { margin-top: 14px; font-size: clamp(19px, 2.2vw, 22px); font-weight: 600; line-height: 1.5; }
+  .en-title { margin-top: 6px; font-size: 15px; color: var(--text-2); }
+  .authors { margin-top: 12px; font-size: 15px; color: var(--text-2); }
+  .authors strong { color: var(--text); font-weight: 600; }
+  .venue { margin-top: 2px; font-size: 14px; color: var(--text-3); }
+  .kw { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .kw li { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--bg-alt); color: var(--text-2); }
+  .go { position: absolute; right: 24px; top: 50%; display: grid; place-items: center; width: 36px; height: 36px; margin-top: -18px; border-radius: 50%; background: var(--bg-alt); color: var(--text-2); transition: background-color .3s, color .3s, transform .4s var(--ease-out); }
+  .paper:hover .go { background: var(--accent); color: #fff; transform: translateX(3px); }
+  @media (max-width: 560px) {
+    .paper { padding: 24px 22px 64px; }
+    .go { top: auto; bottom: 18px; right: 18px; margin-top: 0; }
+  }
+</style>
